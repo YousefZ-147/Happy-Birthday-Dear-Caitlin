@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday Caitlin 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff7eb6; --pink-dark:#e0408a; --pink-light:#ffe0ee; --cream:#fff8fb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Quicksand',sans-serif; color:#5a2342;
+    background:linear-gradient(160deg,#ffe0ee 0%,#fff0f7 45%,#ffd6e8 100%);
+    background-attachment:fixed; overflow-x:hidden;
+  }
+  #wrapper{position:relative; min-height:1500px; padding:40px 16px 160px;}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:center; margin-top:30px; position:relative; z-index:1}
+  .hero h1{
+    font-family:'Pacifico',cursive; font-weight:400; margin:0;
+    font-size:clamp(2.6rem,9vw,5.5rem); color:var(--pink-dark);
+    text-shadow:3px 3px 0 #fff, 6px 6px 0 rgba(255,126,182,.25);
+  }
+  .hero .name{
+    font-family:'Pacifico',cursive; font-size:clamp(3.2rem,12vw,7.5rem);
+    background:linear-gradient(90deg,#ff5fa2,#ff9ac7,#ff5fa2); -webkit-background-clip:text; background-clip:text;
+    color:transparent; margin:6px 0; line-height:1.15;
+  }
+  .hero p{font-size:clamp(1.1rem,3vw,1.5rem); margin:8px auto; max-width:620px}
+
+  /* ---------- main letter ---------- */
+  .main-letter{
+    position:relative; z-index:1; max-width:640px; margin:40px auto 0; padding:34px 30px;
+    background:var(--cream); border-radius:18px; box-shadow:0 12px 40px rgba(224,64,138,.22);
+    border:3px dashed var(--pink); font-family:'Caveat',cursive; font-size:1.7rem; line-height:1.5;
+  }
+  .main-letter h2{font-family:'Pacifico',cursive; font-weight:400; margin:0 0 10px; color:var(--pink-dark); font-size:1.8rem}
+
+  /* ---------- floating hearts ---------- */
+  .float{position:fixed; bottom:-40px; z-index:0; animation:rise linear infinite; opacity:.7; pointer-events:none}
+  @keyframes rise{to{transform:translateY(-115vh) rotate(25deg); opacity:0}}
+
+  /* ---------- stage (stickers + letters) ---------- */
+  #stage{position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden}
+  .item{position:absolute; pointer-events:auto; user-select:none; touch-action:none}
+  .item.sticker{cursor:default; filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+  .item svg{width:100%; height:auto; display:block}
+  .badge{
+    display:inline-block; white-space:nowrap; font-family:'Pacifico',cursive; color:#fff;
+    padding:.35em .9em; border-radius:999px; border:.12em solid #fff;
+    background:linear-gradient(135deg,#ff7eb6,#e0408a); transform:rotate(-6deg);
+    box-shadow:0 4px 10px rgba(224,64,138,.4);
+  }
+  .badge.love{background:linear-gradient(135deg,#ff4d6d,#c9184a); transform:rotate(5deg)}
+  body.editing .item{cursor:grab}
+  body.editing .item.selected{outline:2px dashed var(--pink-dark); outline-offset:4px; border-radius:8px}
+  .item.dragging{cursor:grabbing!important; z-index:50}
+
+  .letter{
+    background:#fffdf5; border-radius:6px; padding:0; box-shadow:0 8px 20px rgba(0,0,0,.18);
+    border-top:6px solid var(--pink); font-family:'Caveat',cursive; color:#4a1d36;
+    background-image:repeating-linear-gradient(transparent,transparent 31px,#f5c9dc 32px);
+  }
+  .letter .handle{display:none; background:var(--pink); color:#fff; text-align:center; font-size:.8rem; padding:2px; cursor:grab}
+  body.editing .letter .handle{display:block}
+  .letter .text{padding:10px 14px 12px; font-size:1.35rem; line-height:32px; min-height:70px; outline:none; white-space:pre-wrap}
+  body.editing .letter .text{cursor:text}
+
+  /* ---------- toolbar ---------- */
+  #toolbar{
+    position:fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:100;
+    background:rgba(255,255,255,.95); border:2px solid var(--pink); border-radius:20px;
+    padding:10px 12px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center;
+    max-width:min(96vw,760px); box-shadow:0 8px 30px rgba(224,64,138,.35);
+  }
+  #toolbar button{
+    font-family:inherit; font-size:.95rem; font-weight:700; cursor:pointer; color:#5a2342;
+    background:var(--pink-light); border:2px solid var(--pink); border-radius:12px; padding:6px 10px;
+  }
+  #toolbar button:hover{background:var(--pink); color:#fff}
+  #toolbar .row{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; width:100%}
+  #tools{display:none; width:100%; flex-wrap:wrap; gap:6px; justify-content:center}
+  body.editing #tools{display:flex}
+  #toggle{background:var(--pink)!important; color:#fff!important}
+  #msg{font-size:.8rem; width:100%; text-align:center; color:var(--pink-dark); min-height:1em}
+  body.editing [contenteditable]{outline:1px dashed rgba(224,64,138,.5); border-radius:6px}
+
+  /* ---------- surprise gate ---------- */
+  #gate{
+    position:fixed; inset:0; z-index:500; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 40%,#fff0f7 0%,#ffb3d1 60%,#ff7eb6 100%); text-align:center; cursor:pointer;
+    transition:opacity 1s ease, transform 1s ease; padding:20px;
+  }
+  #gate.open{opacity:0; transform:scale(1.15); pointer-events:none}
+  #gate .gift{font-size:clamp(7rem,28vw,13rem); line-height:1; animation:bounce 1.4s ease-in-out infinite; filter:drop-shadow(0 12px 14px rgba(0,0,0,.2))}
+  #gate.shake .gift{animation:shake .6s}
+  #gate h2{font-family:'Pacifico',cursive; font-weight:400; color:#fff; font-size:clamp(1.8rem,7vw,3.2rem); margin:10px 0 4px; text-shadow:2px 2px 0 #e0408a}
+  #gate p{color:#fff; font-size:1.2rem; font-weight:700; margin:0; animation:pulse 1.4s ease-in-out infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+  @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg) scale(1.1)}40%{transform:rotate(14deg) scale(1.15)}60%{transform:rotate(-10deg) scale(1.2)}80%{transform:rotate(10deg) scale(1.25)}}
+  @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+  #confetti{position:fixed; inset:0; z-index:600; pointer-events:none}
+  #lyrics{
+    position:fixed; top:56px; left:50%; transform:translateX(-50%); z-index:140; opacity:0; transition:opacity .5s;
+    font-family:'Pacifico',cursive; font-size:clamp(1.4rem,5.5vw,2.6rem); white-space:nowrap; text-align:center;
+    background:rgba(255,255,255,.85); border:3px solid var(--pink); border-radius:999px; padding:8px 26px;
+    color:#f3b6d1; box-shadow:0 6px 20px rgba(224,64,138,.3); pointer-events:none; max-width:96vw;
+  }
+  #lyrics .on{color:var(--pink-dark); text-shadow:1px 1px 0 #fff}
+  #music{
+    position:fixed; top:12px; right:12px; z-index:150; font-family:inherit; font-weight:700; cursor:pointer;
+    background:#fff; border:2px solid var(--pink); color:var(--pink-dark); border-radius:999px; padding:6px 12px;
+    box-shadow:0 4px 12px rgba(224,64,138,.3);
+  }
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+  <div class="hero">
+    <h1 id="title" contenteditable="false">Happy 17th Birthday</h1>
+    <div class="name" id="name" contenteditable="false">Caitlin</div>
+    <p id="subtitle" contenteditable="false">To the love of my life 💖 I hope today is as beautiful as you are.</p>
+  </div>
+
+  <div class="main-letter">
+    <h2 id="letterTitle" contenteditable="false">My Dearest Caitlin,</h2>
+    <div id="letterBody" contenteditable="false">
+      Today is all about you. Every day with you feels like a gift, and I am so grateful you are in my life.
+      You make me laugh, you make me feel safe, and you make everything better just by being you.
+      Happy birthday, my love. I hope you feel as special as you make me feel every single day.<br><br>
+      I love you. Always. 💕<br>
+      — Yours
+    </div>
+  </div>
+
+  <p id="credit" style="display:none; position:relative; z-index:1; text-align:center; font-size:.8rem; margin:18px auto 0; max-width:620px; opacity:.8">
+    🎵 "Happy Birthday" sung by WKG-518 · <a href="https://freesound.org/people/WKG-518/sounds/574342/" target="_blank" rel="noopener">source</a>
+  </p>
+
+  <!-- stickers and letters live here -->
+  <div id="stage"></div>
+</div>
+
+<div id="gate">
+  <div class="gift">🎁</div>
+  <h2 id="gateTitle">A surprise for you, Caitlin</h2>
+  <p>Tap to open 💖</p>
+</div>
+<canvas id="confetti"></canvas>
+<button id="music" style="display:none">🎵 Music: ON</button>
+<div id="lyrics"></div>
+
+<div id="toolbar">
+  <div class="row"><button id="toggle">✏️ Edit mode: OFF</button></div>
+  <div id="tools">
+    <div class="row" id="stickerButtons"></div>
+    <div class="row">
+      <button id="addLetter">✉️ Add letter</button>
+      <button id="bigger">➕ Bigger</button>
+      <button id="smaller">➖ Smaller</button>
+      <button id="del">🗑️ Delete</button>
+      <button id="export">📋 Copy layout</button>
+      <button id="reset">♻️ Reset</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   HOW TO MAKE YOUR EDITS PERMANENT (so she sees them):
+   1. Turn on Edit mode, arrange everything the way you like.
+   2. Click "📋 Copy layout".
+   3. Replace the DEFAULT_ITEMS [...] list below with what you copied,
+      then save the file on GitHub.
+   Your edits are also auto-saved in YOUR browser only.
+   ========================================================= */
+const DEFAULT_ITEMS = [
+  {"type":"sticker","kind":"hb","x":4,"y":60,"size":150},
+  {"type":"sticker","kind":"kitty","x":80,"y":50,"size":110},
+  {"type":"sticker","kind":"love","x":70,"y":330,"size":140},
+  {"type":"sticker","kind":"cake","x":6,"y":330,"size":80},
+  {"type":"sticker","kind":"seventeen","x":42,"y":20,"size":120},
+  {"type":"sticker","kind":"kitty2","x":10,"y":640,"size":100},
+  {"type":"sticker","kind":"heart","x":84,"y":600,"size":60},
+  {"type":"sticker","kind":"hb","x":58,"y":820,"size":130},
+  {"type":"sticker","kind":"love","x":8,"y":900,"size":120},
+  {"type":"letter","text":"You are my favorite person in the whole world 💕","x":60,"y":610,"w":230}
+];
+
+/* ---------- sticker catalog ---------- */
+const catSVG = (fur, inner, bow) => `
+<svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="12,34 18,4 40,20" fill="${fur}" stroke="#5a2342" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="88,34 82,4 60,20" fill="${fur}" stroke="#5a2342" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="19,26 21,12 31,20" fill="${inner}"/>
+  <polygon points="81,26 79,12 69,20" fill="${inner}"/>
+  <ellipse cx="50" cy="50" rx="40" ry="34" fill="${fur}" stroke="#5a2342" stroke-width="3"/>
+  <ellipse cx="34" cy="48" rx="5" ry="6.5" fill="#5a2342"/>
+  <ellipse cx="66" cy="48" rx="5" ry="6.5" fill="#5a2342"/>
+  <circle cx="35.5" cy="45.5" r="1.8" fill="#fff"/><circle cx="67.5" cy="45.5" r="1.8" fill="#fff"/>
+  <ellipse cx="50" cy="58" rx="3.5" ry="2.6" fill="#ff5fa2"/>
+  <path d="M50 61 Q44 68 38 63 M50 61 Q56 68 62 63" fill="none" stroke="#5a2342" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="24" cy="60" r="6" fill="#ffb3d1" opacity=".7"/><circle cx="76" cy="60" r="6" fill="#ffb3d1" opacity=".7"/>
+  <path d="M10 56 L24 58 M10 64 L24 62 M90 56 L76 58 M90 64 L76 62" stroke="#5a2342" stroke-width="1.8" stroke-linecap="round"/>
+  <g transform="translate(76 22)">
+    <path d="M0 0 L-14 -9 L-14 9 Z M0 0 L14 -9 L14 9 Z" fill="${bow}" stroke="#5a2342" stroke-width="2.4" stroke-linejoin="round"/>
+    <circle r="4.5" fill="${bow}" stroke="#5a2342" stroke-width="2.4"/>
+  </g>
+</svg>`;
+
+const STICKERS = {
+  hb:     {label:"🎉 Happy Birthday", mode:"badge", html:"Happy Birthday!", cls:""},
+  love:   {label:"❤️ I love you",     mode:"badge", html:"I ♥ You", cls:"love"},
+  kitty:  {label:"🐱 Kitty",          mode:"svg",   html:catSVG("#ffffff","#ffc2dc","#ff4d94")},
+  kitty2: {label:"😺 Pink kitty",     mode:"svg",   html:catSVG("#ffc9de","#ff9ac7","#ff3d7f")},
+  kitty3: {label:"🐈 Grey kitty",     mode:"svg",   html:catSVG("#cfcfd9","#ffc2dc","#ff4d94")},
+  seventeen:{label:"🎀 17", mode:"badge", html:"17 ✨", cls:""},
+  cake:   {label:"🎂", mode:"emoji", html:"🎂"},
+  heart:  {label:"💖", mode:"emoji", html:"💖"},
+  gift:   {label:"🎁", mode:"emoji", html:"🎁"},
+  balloon:{label:"🎈", mode:"emoji", html:"🎈"},
+  rose:   {label:"🌹", mode:"emoji", html:"🌹"},
+  paw:    {label:"🐾", mode:"emoji", html:"🐾"},
+  star:   {label:"✨", mode:"emoji", html:"✨"},
+  party:  {label:"🥳", mode:"emoji", html:"🥳"},
+  kiss:   {label:"💋", mode:"emoji", html:"💋"}
+};
+
+/* ---------- state ---------- */
+const KEY = "caitlin-birthday-v1";
+const stage = document.getElementById("stage");
+let items = [];
+let selected = null;
+let editing = false;
+
+const EDITABLE_IDS = ["title","name","subtitle","letterTitle","letterBody"];
+
+function load(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if(saved && Array.isArray(saved.items)){
+      items = saved.items;
+      if(saved.texts) EDITABLE_IDS.forEach(id => { if(saved.texts[id] != null) document.getElementById(id).innerHTML = saved.texts[id]; });
+      return;
+    }
+  }catch(e){}
+  items = JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+}
+function save(){
+  try{
+    const texts = {};
+    EDITABLE_IDS.forEach(id => texts[id] = document.getElementById(id).innerHTML);
+    localStorage.setItem(KEY, JSON.stringify({items, texts}));
+  }catch(e){}
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  stage.innerHTML = "";
+  items.forEach((it, i) => stage.appendChild(buildEl(it, i)));
+}
+
+function buildEl(it, i){
+  const el = document.createElement("div");
+  el.className = "item " + (it.type === "letter" ? "letter" : "sticker");
+  el.style.left = it.x + "%";
+  el.style.top = it.y + "px";
+  if(it.type === "letter"){
+    el.style.width = (it.w || 230) + "px";
+    el.innerHTML = `<div class="handle">✥ drag me</div><div class="text" contenteditable="${editing}"></div>`;
+    const t = el.querySelector(".text");
+    t.textContent = it.text || "";
+    t.addEventListener("input", () => { it.text = t.innerText; save(); });
+  } else {
+    const s = STICKERS[it.kind] || STICKERS.heart;
+    if(s.mode === "svg"){ el.style.width = it.size + "px"; el.innerHTML = s.html; }
+    else if(s.mode === "emoji"){ el.style.fontSize = it.size + "px"; el.style.lineHeight = 1; el.textContent = s.html; }
+    else { el.style.fontSize = (it.size * 0.17) + "px"; el.innerHTML = `<span class="badge ${s.cls}">${s.html}</span>`; }
+  }
+  el.dataset.i = i;
+  attachDrag(el, it);
+  return el;
+}
+
+/* ---------- drag & select ---------- */
+function attachDrag(el, it){
+  el.addEventListener("pointerdown", e => {
+    if(!editing) return;
+    const isText = e.target.classList.contains("text");
+    select(el, it);
+    if(isText) return;                // let her type inside letters
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("dragging");
+    const rect = stage.getBoundingClientRect();
+    const startX = e.clientX, startY = e.clientY, ox = it.x, oy = it.y;
+    const move = ev => {
+      it.x = Math.max(-5, Math.min(98, ox + (ev.clientX - startX) / rect.width * 100));
+      it.y = Math.max(0, oy + (ev.clientY - startY));
+      el.style.left = it.x + "%"; el.style.top = it.y + "px";
+    };
+    const up = () => {
+      el.classList.remove("dragging");
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      save();
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+  });
+}
+function select(el, it){
+  document.querySelectorAll(".item.selected").forEach(n => n.classList.remove("selected"));
+  el.classList.add("selected"); selected = it;
+}
+document.addEventListener("pointerdown", e => {
+  if(!e.target.closest(".item") && !e.target.closest("#toolbar")){
+    document.querySelectorAll(".item.selected").forEach(n => n.classList.remove("selected")); selected = null;
+  }
+});
+
+/* ---------- toolbar ---------- */
+const msg = t => { const m = document.getElementById("msg"); m.textContent = t; setTimeout(() => m.textContent = "", 2500); };
+
+const sb = document.getElementById("stickerButtons");
+Object.entries(STICKERS).forEach(([kind, s]) => {
+  const b = document.createElement("button");
+  b.textContent = s.label; b.title = "Add " + kind;
+  b.onclick = () => {
+    const size = s.mode === "emoji" ? 70 : s.mode === "badge" ? 140 : 100;
+    items.push({type:"sticker", kind, x: 30 + Math.random()*30, y: window.scrollY + 140 + Math.random()*200, size});
+    render(); save();
+  };
+  sb.appendChild(b);
+});
+
+document.getElementById("addLetter").onclick = () => {
+  items.push({type:"letter", text:"Write your note here…", x: 25 + Math.random()*30, y: window.scrollY + 160, w:230});
+  render(); save();
+};
+function resize(f){
+  if(!selected) return msg("Tap a sticker or letter first");
+  if(selected.type === "letter") selected.w = Math.max(120, Math.round((selected.w||230)*f));
+  else selected.size = Math.max(20, Math.round(selected.size*f));
+  render(); save();
+}
+document.getElementById("bigger").onclick  = () => resize(1.2);
+document.getElementById("smaller").onclick = () => resize(1/1.2);
+document.getElementById("del").onclick = () => {
+  if(!selected) return msg("Tap a sticker or letter first");
+  items = items.filter(i => i !== selected); selected = null; render(); save();
+};
+document.getElementById("export").onclick = async () => {
+  const text = "const DEFAULT_ITEMS = " + JSON.stringify(items, null, 2) + ";";
+  try{ await navigator.clipboard.writeText(text); msg("Copied! Paste it over DEFAULT_ITEMS in the file."); }
+  catch(e){ prompt("Copy this and paste over DEFAULT_ITEMS:", text); }
+};
+document.getElementById("reset").onclick = () => {
+  if(!confirm("Reset everything back to the original design?")) return;
+  localStorage.removeItem(KEY); location.reload();
+};
+
+document.getElementById("toggle").onclick = () => {
+  editing = !editing;
+  document.body.classList.toggle("editing", editing);
+  document.getElementById("toggle").textContent = "✏️ Edit mode: " + (editing ? "ON" : "OFF");
+  EDITABLE_IDS.forEach(id => document.getElementById(id).setAttribute("contenteditable", editing));
+  if(!editing){ selected = null; }
+  render(); save();
+};
+EDITABLE_IDS.forEach(id => document.getElementById(id).addEventListener("input", save));
+
+/* ---------- floating hearts background ---------- */
+const symbols = ["💖","💕","🌸","💗","🐱","✨","🎀"];
+for(let i = 0; i < 18; i++){
+  const f = document.createElement("div");
+  f.className = "float";
+  f.textContent = symbols[i % symbols.length];
+  f.style.left = Math.random()*100 + "vw";
+  f.style.fontSize = (16 + Math.random()*26) + "px";
+  f.style.animationDuration = (9 + Math.random()*10) + "s";
+  f.style.animationDelay = (-Math.random()*15) + "s";
+  document.body.appendChild(f);
+}
+
+/* =========================================================
+   MUSIC — "Happy Birthday" played right in the browser.
+   Want a real recording instead? Upload an mp3 to the same
+   GitHub folder (e.g. song.mp3) and set AUDIO_FILE = "song.mp3"
+   ========================================================= */
+const AUDIO_FILE = "song.mp3";   // upload your song.mp3 next to this file
+let useFile = !!AUDIO_FILE;
+
+/* Optional: play only part of the recording (in seconds).
+   Example: AUDIO_START = 2; AUDIO_END = 40; Leave AUDIO_END at 0 to play to the end. */
+const AUDIO_START = 0;
+const AUDIO_END = 0;
+
+const N = {G4:392, A4:440, B4:493.88, C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99};
+const SONG = [
+  ["G4",.75],["G4",.25],["A4",1],["G4",1],["C5",1],["B4",2],
+  ["G4",.75],["G4",.25],["A4",1],["G4",1],["D5",1],["C5",2],
+  ["G4",.75],["G4",.25],["G5",1],["E5",1],["C5",1],["B4",1],["A4",1],
+  ["F5",.75],["F5",.25],["E5",1],["C5",1],["D5",1],["C5",2]
+];
+const BEAT = 0.5;
+
+/* Lyrics: one syllable per note. The name in the 3rd line is
+   taken from the big "Caitlin" title on the page. */
+const SYL = [
+  "Hap","py ","birth","day ","to ","you",
+  "Hap","py ","birth","day ","to ","you",
+  "Hap","py ","birth","day ","dear ","NAME","",
+  "Hap","py ","birth","day ","to ","you"
+];
+const LINES = [[0,6],[6,12],[12,19],[19,25]];
+const lyricsEl = document.getElementById("lyrics");
+let lyricTimers = [];
+
+function showLyric(idx){
+  const name = document.getElementById("name").textContent.trim() || "Caitlin";
+  const [a, b] = LINES.find(([s, e]) => idx >= s && idx < e);
+  lyricsEl.style.opacity = 1;
+  lyricsEl.innerHTML = SYL.slice(a, b).map((w, k) => {
+    const word = w === "NAME" ? name : w;
+    return `<span class="${a + k <= idx ? "on" : ""}">${word}</span>`;
+  }).join("");
+}
+
+let audioCtx = null, master = null, loopTimer = null, musicOn = false, fileAudio = null;
+const musicBtn = document.getElementById("music");
+
+function playTune(){
+  if(!musicOn) return;
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume();
+  master = audioCtx.createGain(); master.gain.value = 0.25; master.connect(audioCtx.destination);
+  let t = audioCtx.currentTime + 0.1;
+  lyricTimers.forEach(clearTimeout); lyricTimers = [];
+  SONG.forEach(([n, b], idx) => {
+    const dur = b * BEAT;
+    const osc = audioCtx.createOscillator(); osc.type = "triangle"; osc.frequency.value = N[n];
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.9, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.95);
+    osc.connect(g); g.connect(master);
+    osc.start(t); osc.stop(t + dur);
+    lyricTimers.push(setTimeout(() => { showLyric(idx); }, Math.max(0, (t - audioCtx.currentTime) * 1000)));
+    t += dur;
+  });
+  lyricTimers.push(setTimeout(() => { lyricsEl.style.opacity = 0; }, Math.max(0, (t - audioCtx.currentTime) * 1000) + 400));
+  loopTimer = setTimeout(playTune, (t - audioCtx.currentTime + 1.5) * 1000);
+}
+/* If the recording can't load (blocked, offline, browser can't play .ogg),
+   switch to the built-in tune so there's still music. */
+function fallbackToTune(){
+  if(!useFile) return;
+  useFile = false;
+  if(fileAudio){ fileAudio.pause(); fileAudio = null; }
+  document.getElementById("credit").style.display = "none";
+  if(musicOn) playTune();
+}
+function startMusic(){
+  musicOn = true;
+  if(useFile){
+    if(!fileAudio){
+      fileAudio = Object.assign(new Audio(AUDIO_FILE), {loop:true});
+      fileAudio.addEventListener("error", fallbackToTune);
+    }
+    fileAudio.play().catch(fallbackToTune);
+    document.getElementById("credit").style.display = "block";
+  } else { playTune(); }
+  musicBtn.textContent = "🎵 Music: ON";
+}
+function stopMusic(){
+  musicOn = false; clearTimeout(loopTimer);
+  lyricTimers.forEach(clearTimeout); lyricTimers = []; lyricsEl.style.opacity = 0;
+  if(master){ master.gain.value = 0; master.disconnect(); master = null; }
+  if(fileAudio) fileAudio.pause();
+  musicBtn.textContent = "🔇 Music: OFF";
+}
+musicBtn.onclick = () => musicOn ? stopMusic() : startMusic();
+
+/* ---------- confetti ---------- */
+function confetti(){
+  const c = document.getElementById("confetti"), ctx = c.getContext("2d");
+  c.width = innerWidth; c.height = innerHeight;
+  const colors = ["#ff7eb6","#e0408a","#ffd1e6","#fff","#ffcf4d","#ff4d6d","#b388ff"];
+  const ps = Array.from({length:200}, () => ({
+    x:innerWidth/2, y:innerHeight/2, vx:(Math.random()-.5)*20, vy:Math.random()*-18-4,
+    s:6+Math.random()*8, c:colors[Math.floor(Math.random()*colors.length)],
+    r:Math.random()*6, vr:(Math.random()-.5)*.4, g:.35
+  }));
+  let frames = 0;
+  (function tick(){
+    ctx.clearRect(0, 0, c.width, c.height);
+    ps.forEach(p => {
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s/2, -p.s/4, p.s, p.s/2); ctx.restore();
+    });
+    if(++frames < 240) requestAnimationFrame(tick); else ctx.clearRect(0, 0, c.width, c.height);
+  })();
+}
+
+/* ---------- open the surprise ---------- */
+const gate = document.getElementById("gate");
+let opened = false;
+gate.addEventListener("click", () => {
+  if(opened) return;
+  opened = true;
+  gate.classList.add("shake");
+  setTimeout(() => {
+    confetti();
+    startMusic();
+    musicBtn.style.display = "block";
+    gate.classList.add("open");
+    setTimeout(() => { gate.style.display = "none"; }, 1000);
+    setTimeout(confetti, 1500);
+  }, 600);
+});
+
+load();
+render();
+</script>
+</body>
+</html>
